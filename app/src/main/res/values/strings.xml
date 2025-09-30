@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">MiniGlide 1 Image View</string>
+
+    <string-array name="url_array">
+        <item>https://images.pexels.com/photos/2662116/pexels-photo-2662116.jpeg</item>
+        <item>https://images.pexels.com/photos/1590882/pexels-photo-1590882.jpeg</item>
+        <item>https://images.pexels.com/photos/1006360/pexels-photo-1006360.jpeg</item>
+        <item>https://images.pexels.com/photos/3779783/pexels-photo-3779783.jpeg</item>
+        <item>https://images.pexels.com/photos/1766828/pexels-photo-1766828.jpeg</item>
+        <item>https://images.pexels.com/photos/1179237/pexels-photo-1179237.jpeg</item>
+        <item>https://images.pexels.com/photos/1630883/pexels-photo-1630883.jpeg</item>
+        <item>https://images.pexels.com/photos/1525042/pexels-photo-1525042.jpeg</item>
+        <item>https://images.pexels.com/photos/1467754/pexels-photo-1467754.jpeg</item>
+        <item>https://images.pexels.com/photos/34003413/pexels-photo-34003413.jpeg</item>
+        <item>https://images.pexels.com/photos/18962479/pexels-photo-18962479.jpeg</item>
+        <item>https://images.pexels.com/photos/4014853/pexels-photo-4014853.jpeg</item>
+        <item>https://images.pexels.com/photos/1642770/pexels-photo-1642770.jpeg</item>
+        <item>https://images.pexels.com/photos/3578416/pexels-photo-3578416.jpeg</item>
+        <item>https://images.pexels.com/photos/2403209/pexels-photo-2403209.jpeg</item>
+        <item>https://images.pexels.com/photos/3232538/pexels-photo-3232538.jpeg</item>
+        <item>https://images.pexels.com/photos/1126382/pexels-photo-1126382.jpeg</item>
+        <item>https://images.pexels.com/photos/5712972/pexels-photo-5712972.jpeg</item>
+        <item>https://images.pexels.com/photos/1287133/pexels-photo-1287133.jpeg</item>
+        <item>https://images.pexels.com/photos/9435864/pexels-photo-9435864.jpeg</item>
+    </string-array>
+</resources>
