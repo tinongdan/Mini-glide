@@ -1,7 +1,6 @@
 package com.example.miniglide1imageview
 
 import android.os.Bundle
-import android.widget.ImageView
 import androidx.activity.ComponentActivity
 import androidx.recyclerview.widget.RecyclerView
 
