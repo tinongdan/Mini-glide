@@ -3,6 +3,7 @@ package com.example.miniglide1imageview
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.Log
 import android.view.ViewGroup
 import android.widget.ImageView
 import com.squareup.okhttp.OkHttpClient
@@ -15,9 +16,31 @@ import kotlin.math.min
 
 class RequestManager(private val context: Context) {
     private val client = OkHttpClient()
+    private val imageViewHashSet = mutableSetOf<Int>()
 
     fun load(url: String): RequestBuilder {
         return RequestBuilder(this, url)
+    }
+
+    fun loadImage(url: String, imageView: ImageView) {
+        Log.d("8888", "Load url $url")
+        CoroutineScope(Dispatchers.IO).launch {
+            val bitmap = downloadAndDecodeImage(url, imageView)
+            if (bitmap != null) {
+                withContext(Dispatchers.Main) {
+                    imageView.setImageBitmap(bitmap)
+                }
+            }
+        }
+        imageViewHashSet.add(imageView.hashCode())
+    }
+
+    /*
+        If imageView has already been created (with specified width & height),
+        then it doesn't have to wait for doOnPreDraw.
+     */
+    fun canLoad(imageView: ImageView): Boolean {
+        return imageViewHashSet.contains(imageView.hashCode())
     }
 
     fun downloadAndDecodeImage(url: String, imageView: ImageView): Bitmap? {
@@ -45,15 +68,6 @@ class RequestManager(private val context: Context) {
 
         options.inJustDecodeBounds = false
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.size, options)
-    }
-
-    fun loadImage(url: String, imageView: ImageView) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val bitmap = downloadAndDecodeImage(url, imageView)
-            withContext(Dispatchers.Main) {
-                imageView.setImageBitmap(bitmap)
-            }
-        }
     }
 }
 

@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 
 class ImageAdapter(
     private val urlList: Array<String>
@@ -17,7 +18,9 @@ class ImageAdapter(
     ): ImageViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.image_item, parent, false)
-        return ImageViewHolder(view)
+        val holder = ImageViewHolder(view)
+        Log.d("8888", "Create ViewHolder ${holder.hashCode()}")
+        return holder
     }
 
     override fun onBindViewHolder(
@@ -35,7 +38,7 @@ class ImageAdapter(
         private val imageView: ImageView = itemView.findViewById(R.id.image_view)
 
         fun bind(url: String) {
-            Log.d("8888", "Bind to url $url")
+            Log.d("8888", "Bind ImageView ${imageView.hashCode()} of ViewHolder ${this.hashCode()} to url $url")
             MiniGlide.with(imageView.context).load(url).into(imageView)
         }
     }
