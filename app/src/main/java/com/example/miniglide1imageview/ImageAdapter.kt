@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.miniglide1imageview.miniglide.MiniGlide
 
 class ImageAdapter(
     private val urlList: Array<String>
@@ -19,7 +20,7 @@ class ImageAdapter(
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.image_item, parent, false)
         val holder = ImageViewHolder(view)
-        Log.d("8888", "Create ViewHolder ${holder.hashCode()}")
+//        Log.d("8888", "Create ViewHolder ${holder.hashCode()}")
         return holder
     }
 
@@ -38,7 +39,7 @@ class ImageAdapter(
         private val imageView: ImageView = itemView.findViewById(R.id.image_view)
 
         fun bind(url: String) {
-            Log.d("8888", "Bind ImageView ${imageView.hashCode()} of ViewHolder ${this.hashCode()} to url $url")
+//            Log.d("8888", "Bind ImageView ${imageView.hashCode()} of ViewHolder ${this.hashCode()} to url $url")
             MiniGlide.with(imageView.context).load(url).into(imageView)
         }
     }

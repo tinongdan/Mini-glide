@@ -1,4 +1,4 @@
-package com.example.miniglide1imageview
+package com.example.miniglide1imageview.cache
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -7,8 +7,7 @@ import android.util.Log
 import java.io.File
 import java.security.MessageDigest
 
-
-private const val DISK_CACHE_SIZE = 1024 * 1024 * 100L       // 100 MB
+private const val DISK_CACHE_SIZE = 1024 * 1024 * 500L       // 500 MB
 private const val DISK_CACHE_SUBDIR = "mini_glide_disk_cache"
 private const val COMPRESS_QUALITY = 100
 private val COMPRESS_FORMAT = Bitmap.CompressFormat.PNG
@@ -16,11 +15,6 @@ private val COMPRESS_FORMAT = Bitmap.CompressFormat.PNG
 
 class DiskCache(context: Context) {
     private val cacheDir = File(context.cacheDir, DISK_CACHE_SUBDIR).apply { mkdirs() }
-
-    private fun hashKeyForUrl(url: String): String {
-        val md5 = MessageDigest.getInstance("MD5").digest(url.toByteArray())
-        return md5.joinToString("") { "%02x".format(it) }
-    }
 
     fun put(url: String, bitmap: Bitmap) {
         val key = hashKeyForUrl(url)

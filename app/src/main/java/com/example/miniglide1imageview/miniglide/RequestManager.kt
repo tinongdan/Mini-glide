@@ -1,4 +1,4 @@
-package com.example.miniglide1imageview
+package com.example.miniglide1imageview.miniglide
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -6,6 +6,9 @@ import android.graphics.BitmapFactory
 import android.util.Log
 import android.view.ViewGroup
 import android.widget.ImageView
+import com.example.miniglide1imageview.cache.DiskCache
+import com.example.miniglide1imageview.cache.MemoryCache
+import com.example.miniglide1imageview.miniglide.RequestBuilder
 import com.squareup.okhttp.OkHttpClient
 import com.squareup.okhttp.Request
 import kotlinx.coroutines.CoroutineScope
@@ -17,22 +20,45 @@ import kotlin.math.min
 class RequestManager(private val context: Context) {
     private val client = OkHttpClient()
     private val imageViewHashSet = mutableSetOf<Int>()
+    private val memoryCache = MemoryCache()
+    private val diskCache = DiskCache(context)
 
     fun load(url: String): RequestBuilder {
         return RequestBuilder(this, url)
     }
 
     fun loadImage(url: String, imageView: ImageView) {
-        Log.d("8888", "Load url $url")
-        CoroutineScope(Dispatchers.IO).launch {
-            val bitmap = downloadAndDecodeImage(url, imageView)
-            if (bitmap != null) {
-                withContext(Dispatchers.Main) {
-                    imageView.setImageBitmap(bitmap)
+//        Log.d("8888", "Load url $url")
+        imageViewHashSet.add(imageView.hashCode())
+
+        CoroutineScope(Dispatchers.Main).launch {
+            memoryCache.get(url)?.let { bitmap ->
+                imageView.setImageBitmap(bitmap)
+                Log.d("8888", "Loaded from MEMORY cache: $url")
+                return@launch
+            }
+
+            val (bitmap, putToDisk) = withContext(Dispatchers.IO) {
+                diskCache.get(url)?.let {
+                    Log.d("8888", "Loaded from DISK cache: $url")
+                    it to false
+                } ?: downloadAndDecodeImage(url, imageView)?.let {
+                    Log.d("8888", "Loaded from NETWORK: $url")
+                    it to true
+                }
+            } ?: return@launch
+
+
+            imageView.setImageBitmap(bitmap)
+            memoryCache.put(url, bitmap)
+//            memoryCache.debug()
+
+            if (putToDisk) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    diskCache.put(url, bitmap)
                 }
             }
         }
-        imageViewHashSet.add(imageView.hashCode())
     }
 
     /*
@@ -43,7 +69,7 @@ class RequestManager(private val context: Context) {
         return imageViewHashSet.contains(imageView.hashCode())
     }
 
-    fun downloadAndDecodeImage(url: String, imageView: ImageView): Bitmap? {
+    private fun downloadAndDecodeImage(url: String, imageView: ImageView): Bitmap? {
         val request = Request.Builder().url(url).build()
         val response = client.newCall(request).execute()
         val bytes = response.body().bytes()

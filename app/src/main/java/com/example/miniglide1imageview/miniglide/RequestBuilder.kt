@@ -1,8 +1,6 @@
-package com.example.miniglide1imageview
+package com.example.miniglide1imageview.miniglide
 
-import android.util.Log
 import android.widget.ImageView
-import androidx.core.view.doOnLayout
 import androidx.core.view.doOnPreDraw
 
 class RequestBuilder(private val requestManager: RequestManager, private val url: String) {
