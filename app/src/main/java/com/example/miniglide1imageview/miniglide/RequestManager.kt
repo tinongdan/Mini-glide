@@ -7,14 +7,17 @@ import android.util.Log
 import android.view.ViewGroup
 import android.widget.ImageView
 import com.example.miniglide1imageview.cache.DiskCache
+import com.example.miniglide1imageview.cache.DiskCache2
 import com.example.miniglide1imageview.cache.MemoryCache
 import com.example.miniglide1imageview.miniglide.RequestBuilder
 import com.squareup.okhttp.OkHttpClient
 import com.squareup.okhttp.Request
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.min
 
 class RequestManager(private val context: Context) {
@@ -22,18 +25,29 @@ class RequestManager(private val context: Context) {
     private val imageViewHashSet = mutableSetOf<Int>()
     private val memoryCache = MemoryCache()
     private val diskCache = DiskCache(context)
+    private val activeJobs = ConcurrentHashMap<Int, Job>()
 
     fun load(url: String): RequestBuilder {
         return RequestBuilder(this, url)
     }
 
+    fun clear(imageView: ImageView) {
+        activeJobs[imageView.hashCode()]?.cancel()
+        activeJobs.remove(imageView.hashCode())
+        imageView.setImageDrawable(null)
+    }
+
     fun loadImage(url: String, imageView: ImageView) {
 //        Log.d("8888", "Load url $url")
         imageViewHashSet.add(imageView.hashCode())
+        clear(imageView)
+        imageView.tag = url
 
-        CoroutineScope(Dispatchers.Main).launch {
+        val job = CoroutineScope(Dispatchers.Main).launch {
             memoryCache.get(url)?.let { bitmap ->
-                imageView.setImageBitmap(bitmap)
+                if (imageView.tag == url) {
+                    imageView.setImageBitmap(bitmap)
+                }
                 Log.d("8888", "Loaded from MEMORY cache: $url")
                 return@launch
             }
@@ -49,7 +63,9 @@ class RequestManager(private val context: Context) {
             } ?: return@launch
 
 
-            imageView.setImageBitmap(bitmap)
+            if (imageView.tag == url) {
+                imageView.setImageBitmap(bitmap)
+            }
             memoryCache.put(url, bitmap)
 //            memoryCache.debug()
 
@@ -58,6 +74,11 @@ class RequestManager(private val context: Context) {
                     diskCache.put(url, bitmap)
                 }
             }
+        }
+
+        activeJobs[imageView.hashCode()] = job
+        job.invokeOnCompletion {
+            activeJobs.remove(imageView.hashCode())
         }
     }
 
