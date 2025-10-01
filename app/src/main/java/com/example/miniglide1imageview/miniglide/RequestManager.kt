@@ -22,24 +22,24 @@ import kotlin.math.min
 
 class RequestManager(private val context: Context) {
     private val client = OkHttpClient()
-    private val imageViewHashSet = mutableSetOf<Int>()
+    private val imageViewSet = mutableSetOf<ImageView>()
     private val memoryCache = MemoryCache()
     private val diskCache = DiskCache(context)
-    private val activeJobs = ConcurrentHashMap<Int, Job>()
+    private val activeJobs = ConcurrentHashMap<ImageView, Job>()
 
     fun load(url: String): RequestBuilder {
         return RequestBuilder(this, url)
     }
 
     fun clear(imageView: ImageView) {
-        activeJobs[imageView.hashCode()]?.cancel()
-        activeJobs.remove(imageView.hashCode())
+        activeJobs[imageView]?.cancel()
+        activeJobs.remove(imageView)
         imageView.setImageDrawable(null)
     }
 
     fun loadImage(url: String, imageView: ImageView) {
 //        Log.d("8888", "Load url $url")
-        imageViewHashSet.add(imageView.hashCode())
+        imageViewSet.add(imageView)
         clear(imageView)
         imageView.tag = url
 
@@ -48,16 +48,16 @@ class RequestManager(private val context: Context) {
                 if (imageView.tag == url) {
                     imageView.setImageBitmap(bitmap)
                 }
-                Log.d("8888", "Loaded from MEMORY cache: $url")
+//                Log.d("8888", "Loaded from MEMORY cache: $url")
                 return@launch
             }
 
             val (bitmap, putToDisk) = withContext(Dispatchers.IO) {
                 diskCache.get(url)?.let {
-                    Log.d("8888", "Loaded from DISK cache: $url")
+//                    Log.d("8888", "Loaded from DISK cache: $url")
                     it to false
                 } ?: downloadAndDecodeImage(url, imageView)?.let {
-                    Log.d("8888", "Loaded from NETWORK: $url")
+//                    Log.d("8888", "Loaded from NETWORK: $url")
                     it to true
                 }
             } ?: return@launch
@@ -76,9 +76,9 @@ class RequestManager(private val context: Context) {
             }
         }
 
-        activeJobs[imageView.hashCode()] = job
+        activeJobs[imageView] = job
         job.invokeOnCompletion {
-            activeJobs.remove(imageView.hashCode())
+            activeJobs.remove(imageView)
         }
     }
 
@@ -87,7 +87,7 @@ class RequestManager(private val context: Context) {
         then it doesn't have to wait for doOnPreDraw.
      */
     fun canLoad(imageView: ImageView): Boolean {
-        return imageViewHashSet.contains(imageView.hashCode())
+        return imageViewSet.contains(imageView)
     }
 
     private fun downloadAndDecodeImage(url: String, imageView: ImageView): Bitmap? {

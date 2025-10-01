@@ -6,7 +6,7 @@ import android.util.LruCache
 
 class MemoryCache {
     private val maxMemory = (Runtime.getRuntime().maxMemory() / 1024).toInt()   // 192 MB
-    private val cacheSize = maxMemory / 1   // 64 MB
+    private val cacheSize = maxMemory / 1   // 192 MB
     private val memoryCache = object : LruCache<String, Bitmap>(cacheSize) {
         override fun sizeOf(key: String, bitmap: Bitmap): Int {
             return bitmap.byteCount / 1024
